@@ -13,6 +13,8 @@ import java.util.Set;
 public class NioServer {
     private final static int PORT = 6666;
     private final static int BUFFER_SIZE = 1024;
+    private static ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+
     public static void main(String[] args) throws Exception {
         Selector selector = Selector.open();
         ServerSocketChannel channel = ServerSocketChannel.open();
@@ -57,7 +59,7 @@ public class NioServer {
 
             if (key.isReadable()) {
                 SocketChannel sc = (SocketChannel) key.channel();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(BUFFER_SIZE);
+                byteBuffer.clear();
                 int readBytes = sc.read(byteBuffer);
                 if (readBytes > 0) {
                     byteBuffer.flip();
@@ -75,8 +77,8 @@ public class NioServer {
 
     private static void doWrite(SocketChannel channel, String response) throws IOException {
         System.out.println("response " + response.length());
+        byteBuffer.clear();
         byte[] bytes = response.getBytes();
-        ByteBuffer byteBuffer = ByteBuffer.allocate(bytes.length);
         byteBuffer.put(bytes);
         byteBuffer.flip();
         channel.write(byteBuffer);
